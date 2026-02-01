@@ -7,23 +7,30 @@ db = SQLAlchemy()
 
 class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(
+        String(120), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     lastname: Mapped[str] = mapped_column(String(200), nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+
+    # Relationships
+    planets = relationship('Planet', secondary='fav_planets', backref='users')
+    favorites_people = relationship(
+        'Character', secondary='fav_characters', backref='users')
 
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
             "name": self.name,
-            "lastname": self.name,
+            "lastname": self.lastname,
             # do not serialize the password, its a security breach
         }
 
 
-class planet(db.Model):
+class Planet(db.Model):
+    __tablename__ = 'planet'
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     rotation_period: Mapped[int] = mapped_column(nullable=False)
@@ -34,7 +41,6 @@ class planet(db.Model):
     terrain: Mapped[str] = mapped_column(nullable=False)
     surface_water: Mapped[str] = mapped_column(nullable=False)
     population: Mapped[str] = mapped_column(nullable=False)
-
 
     def serialize(self):
         return {
@@ -52,7 +58,8 @@ class planet(db.Model):
         }
 
 
-class character(db.Model):
+class Character(db.Model):
+    __tablename__ = 'character'
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     height: Mapped[int] = mapped_column(nullable=False)
@@ -62,7 +69,6 @@ class character(db.Model):
     eye_color: Mapped[str] = mapped_column(String(100), nullable=False)
     birth_year: Mapped[str] = mapped_column(String(120), nullable=False)
     gender: Mapped[str] = mapped_column(String(50), nullable=False)
-
 
     def serialize(self):
         return {
